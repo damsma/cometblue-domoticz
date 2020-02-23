@@ -1,5 +1,5 @@
 """
-<plugin key="cometblue-domoticz" name="Comet Blue radiator valve (cometblue-domoticz)" version="0.0.1">
+<plugin key="cometblue-domoticz" name="Comet Blue radiator valve (cometblue-domoticz)" version="0.0.2">
     <description>
       Simple plugin to manage Comet Blue radiator valve
       <br/>
@@ -96,7 +96,12 @@ class BasePlugin:
         if(str(Command) == "Set Level"):
             #Send bluetooth command
             expCommand = ["heaterControl.exp", str(Parameters["Address"]), str(Parameters["Mode1"]), str(Level)]
-            result = run(expCommand, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+            try:
+                result = run(expCommand, stdout=PIPE, stderr=PIPE, universal_newlines=True, timeout=30)
+            except Exception as e:
+                Domoticz.Log("onCommand ERROR: "+ str(e))
+                Domoticz.Log("ERROR: Timeout while trying to communicate with device. Make sure the device is on and is in the range.")
+                return False
             #print(result.returncode, result.stdout, result.stderr)
             if(str(result.returncode) == "0"):
                 Domoticz.Log("New temperature set correctly")
@@ -122,6 +127,7 @@ class BasePlugin:
 
                 return True
             else:
+                Domoticz.Log("Undefined ERROR!")
                 print(result.returncode, result.stdout, result.stderr)
                 return False
 
@@ -138,8 +144,8 @@ class BasePlugin:
         if (now < self.nextrun):
             Domoticz.Log("Abort - waiting until : "+str(self.nextrun))
             return
-        self.nextrun = (datetime.datetime.now() + datetime.timedelta(seconds=self.pollinterval))
         Domoticz.Log("Refreshing data...")
+        self.nextrun = (datetime.datetime.now() + datetime.timedelta(seconds=self.pollinterval))
 
         iUnit = -1
         for Device in Devices:
@@ -152,7 +158,15 @@ class BasePlugin:
 
         #Send bluetooth command
         expCommand = ["heaterControl.exp", str(Parameters["Address"]), str(Parameters["Mode1"])]
-        result = run(expCommand, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+
+        try:
+            result = run(expCommand, stdout=PIPE, stderr=PIPE, universal_newlines=True, timeout=30)
+        except Exception as e:
+            Domoticz.Log("onCommand ERROR: "+ str(e))
+            Domoticz.Log("ERROR: Timeout while trying to communicate with device. Make sure the device is on and is in the range.")
+            self.nextrun = datetime.datetime.now()
+            return False
+
         if(str(result.returncode) == "0"):
             #print("stdout: "+result.stdout)
             resultOldSet = re.search(r'Old set temperature(.*?) =====', result.stdout).group(1)
@@ -184,6 +198,7 @@ class BasePlugin:
 
             return True
         else:
+            Domoticz.Log("Undefined ERROR!")
             print(result.returncode, result.stdout, result.stderr)
             return False
 
