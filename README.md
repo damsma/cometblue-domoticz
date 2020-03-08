@@ -53,3 +53,8 @@ In Domoticz go to setup->hardware, select the plugin "Comet Blue radiator valve 
 <b>Done! The plugin will now create 2 new devices for you in domoticz:</b>
 - temperature device <- shows the actual temperature of the room
 - utility device <- for temperature control
+
+<h1>Troubleshooting</h1>
+If you experience problems with other plugins that uses Bluetooth (e,g Xiaomi Mi Flora plugin), remove this 3 lines in heaterControl.exp:
+<pre><code>exec hciconfig hci0 down
+</code></pre>
