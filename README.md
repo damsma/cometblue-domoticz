@@ -7,9 +7,21 @@ You can buy this devices under different names: Xavax Hama, Sygonix HT100 BT, Eu
 
 The plugin was tested on a Raspberry Pi 3 with integrated bluetooth.
 
-
 <h2>Installing Prerequisites</h2>
-<pre><code>apt-get install bluez bluetooth expect
+<h3>Installing Domoticz</h3>
+<pre><code>
+curl -L https://install.domoticz.com | bash
+</code></pre>
+
+<h3>Make sure your Domoticz plugin system runs properly</h3>
+<pre><code>
+python3 -V
+apt-get install python3.x libpython3.x python3.x-dev #(where 'x' is the version from above: e,g libpython3.7)
+</code></pre>
+
+<h3>Installing prerequisites for this plugin</h3>
+<pre><code>
+apt-get install bluez bluetooth expect
 wget https://www.torsten-traenkner.de/wissen/smarthome/heaterControl.exp
 chmod 755 heaterControl.exp
 cp heaterControl.exp /usr/local/bin/
